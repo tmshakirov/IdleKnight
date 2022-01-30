@@ -1,0 +1,45 @@
+Topics:
+1. How to put the system on stage correctly?
+2. I need DemoScene
+3. Where are the road generator settings?
+3.1. How do I customize my road sections?
+3.2. How to set up the ability to repeat the previous section of the road?
+3.3. How to change the scroll speed of the road?
+3.4. How to change the maximum road length?
+3.5. How to change the distance between road sections?
+3.6. How to change the waiting area of unused road sections?
+3.7. What is Status in RoadGenerator Script?
+4. How to add options for placing objects on the road?
+4.1. How do I change the settings for road sections?
+5. Assessing the asset
+
+
+1: Create a new scene or switch to an existing one. Go to Runner Endless Road Generator-> Prefab folder. Select a ready-made RoadGenerator prefab. Move the RoadGenerator prefab to the stage. Save the new scene.
+
+2: Go to Runner Endless Road Generator-> Scene. Select and click on DemoScene.
+
+3: First, read point 1. Select the RoadGenerator object in the scene, click on it. In the inspector find the RoadGenerator script.
+
+3.1: Important: first create a copy of the road sections in the scene, this is needed to create a varied road. Select the RoadGenerator object in the scene, click on it. In the inspector find the RoadGenerator script. Find the Roads item, move all road sections to it, including copies of road sections. Also find the Number Roads item, open the Number Roads list in the Size item specify the total number of road sections including copies of the road sections (or you can open the Roads list and see the Size in it). In addition, hang the Runner Endless Road Generator-> Scripts -> Road script on all road sections!
+
+!!!Very important: put only 2 groups of road section objects in the list, that is, the original road sections and their ONE copy!!!
+
+
+
+3.2: Select the RoadGenerator object in the scene, click on it. In the inspector find the RoadGenerator script. Find Repeat Last Road, check or uncheck the box to enable or disable the repeat of the previous road section.
+
+3.3: Select the RoadGenerator object in the scene, click on it. In the inspector find the RoadGenerator script. Find the item Speed, change the value of the variable to change the speed of the road scrolling.
+
+3.4: Select the RoadGenerator object in the scene, click on it. In the inspector find the RoadGenerator script. Find the item Max Count Road, change it to decrease or increase the maximum length of the road.
+
+3.5: Select the RoadGenerator object in the scene, click on it. In the inspector find the RoadGenerator script. Find the Distance item, change it to decrease or increase the distance between road sections. Important: it is imperative that the road sections are of the same size so that the distance between the road sections is not disturbed.
+
+3.6: Select the RoadGenerator object in the scene, click on it. In the inspector find the RoadGenerator script. Find Zona Waiting, change the waiting position.
+
+3.7: The Status variable is responsible for the RoadGenerator operation, if the value of the variable is equal to "Generate", then the road will scroll, new road sections will appear.
+
+4: Be sure to follow point 3.1. Go to your road section, there should be a Road script on it. In the variants field, move the empty object in which the variants of object placement will be placed, you can add any number of variants.To do this, create an empty object, and move your objects into it, also adjust their position.
+
+4.1: Go to the Road script, where you can change the variables.
+
+5: Please rate this asset in the Asset Store, your rating is very important to me. Your rating will also help other users when purchasing the asset. Thank you for your purchase.

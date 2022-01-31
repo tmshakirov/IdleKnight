@@ -9,6 +9,7 @@ public enum EnemyState { IDLE, ATTACK, DEATH }
 
 public class EnemyScript : MonoBehaviour
 {
+    [SerializeField] private GameObject cross;
     [SerializeField] private EnemyState state;
     [SerializeField] private GameObject blood;
     [SerializeField] private Material deathMat;
@@ -68,6 +69,7 @@ public class EnemyScript : MonoBehaviour
     {
         if (state != EnemyState.DEATH)
         {
+            cross.SetActive(level > UpgradeHandler.Instance.GetLevel());
             if (Vector3.Distance(transform.position, player.transform.position) <= 2.5f)
             {
                 rotationDirection = player.transform.position - transform.position;
@@ -96,6 +98,7 @@ public class EnemyScript : MonoBehaviour
     private void Hit()
     {
         player.GetComponent<PlayerController>().GetDamage(level);
+        state = EnemyState.IDLE;
     }
 
     public int GetLevel ()

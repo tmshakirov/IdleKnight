@@ -49,7 +49,7 @@ public class PlayerController : Singleton<PlayerController>
     {
         RaycastHit objectHit;
         Vector3 fwd = transform.TransformDirection(Vector3.forward);
-        if (Physics.Raycast(transform.position + Vector3.up, fwd, out objectHit, 1.5f))
+        if (Physics.Raycast(transform.position + Vector3.up, fwd, out objectHit, 1.8f))
         {
             if (objectHit.transform.CompareTag("Enemy"))
             {
@@ -89,7 +89,8 @@ public class PlayerController : Singleton<PlayerController>
     {
         if (EnemyInFront() != null)
         {
-            anim.SetBool("Attacking", true);
+            if (!anim.GetBool("Hit"))
+                anim.SetBool("Attacking", true);
         }
         else
         {
@@ -118,6 +119,7 @@ public class PlayerController : Singleton<PlayerController>
     {
         if (_level > UpgradeHandler.Instance.GetLevel())
         {
+            anim.SetBool("Hit", true);
             int _amount = (_level - UpgradeHandler.Instance.GetLevel()) * 5;
             health -= _amount;
             healthText.text = health.ToString();
@@ -131,6 +133,11 @@ public class PlayerController : Singleton<PlayerController>
                 damageCanvas.DOFade(0, 0.15f).OnComplete(() => damageCanvas.gameObject.SetActive(false));
             });
         }
+    }
+
+    private void HitEnd()
+    {
+        anim.SetBool("Hit", false);
     }
 
     private void Movement()

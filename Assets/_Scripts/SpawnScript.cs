@@ -29,7 +29,7 @@ public class SpawnScript : MonoBehaviour
         {
             spawned = true;
         }
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 12; i++)
         {
             spawnChance = Random.Range(1, 101);
             if (spawnChance <= 40 && !prevEnemy)

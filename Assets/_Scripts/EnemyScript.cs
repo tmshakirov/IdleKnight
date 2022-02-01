@@ -5,27 +5,30 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 
+public enum EnemyType { SWORDSMAN, RUNNER, BOWMAN }
 public enum EnemyState { IDLE, ATTACK, DEATH }
 
 public class EnemyScript : MonoBehaviour
 {
-    [SerializeField] private GameObject cross;
-    [SerializeField] private EnemyState state;
-    [SerializeField] private GameObject blood;
-    [SerializeField] private Material deathMat;
-    [SerializeField] private SkinnedMeshRenderer MR;
-    private Animator anim;
-    private Transform player;
-    private int level;
-    [SerializeField] private float attackDistance = 0.75f;
-    [SerializeField] private GameObject levelImage, levelPrefab;
-    [SerializeField] private TMP_Text levelText;
-    [SerializeField] private List<GameObject> weapons, armor;
-    [SerializeField] private RectTransform mainCanvas;
+    [SerializeField] protected EnemyType type;
+    [SerializeField] protected EnemyState state;
+    [SerializeField] protected GameObject cross;
+    [SerializeField] protected GameObject blood, splash;
+    [SerializeField] protected Material deathMat;
+    [SerializeField] protected SkinnedMeshRenderer MR;
+    protected Animator anim;
+    protected Transform player;
+    protected int level;
+    [SerializeField] protected float attentionDistance = 2.5f;
+    [SerializeField] protected float attackDistance = 0.75f;
+    [SerializeField] protected GameObject levelImage, levelPrefab;
+    [SerializeField] protected TMP_Text levelText;
+    [SerializeField] protected List<GameObject> weapons, armor;
+    [SerializeField] protected RectTransform mainCanvas;
 
 
 
-    private Vector3 rotationDirection;
+    protected Vector3 rotationDirection;
 
     void Start()
     {
@@ -35,12 +38,27 @@ public class EnemyScript : MonoBehaviour
 
     public void Init ()
     {
-        level = UpgradeHandler.Instance.GetLevel();
-        if (Random.Range(1, 101) <= 30)
+        
+        if (type == EnemyType.RUNNER)
         {
-            level += Random.Range(-2, 3);
-            if (level < 0)
-                level = 0;
+            level = Random.Range(0, UpgradeHandler.Instance.GetLevel());
+        }
+        else
+        {
+            level = UpgradeHandler.Instance.GetLevel();
+            if (Random.Range(1, 101) <= 30)
+            {
+                if (Random.Range(1, 101) <= 40)
+                {
+                    level += Random.Range(1, 3);
+                }
+                else
+                {
+                    level += Random.Range(-2, 3);
+                    if (level < 0)
+                        level = 0;
+                }
+            }
         }
         transform.localScale += new Vector3(level * 0.05f, level * 0.05f, level * 0.05f);
         try
@@ -65,12 +83,12 @@ public class EnemyScript : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    public virtual void Update()
     {
         if (state != EnemyState.DEATH)
         {
             cross.SetActive(level > UpgradeHandler.Instance.GetLevel());
-            if (Vector3.Distance(transform.position, player.transform.position) <= 2.5f)
+            if (Vector3.Distance(transform.position, player.transform.position) <= attentionDistance)
             {
                 rotationDirection = player.transform.position - transform.position;
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(rotationDirection), 6f * Time.deltaTime);
@@ -80,7 +98,26 @@ public class EnemyScript : MonoBehaviour
         switch (state)
         {
             case EnemyState.IDLE:
-                anim.Play("Idle");
+                if (type == EnemyType.RUNNER)
+                {
+                    if (Vector3.Distance (transform.position, player.transform.position) <= attentionDistance)
+                    {
+                        anim.Play("Run");
+                        transform.position = Vector3.MoveTowards(transform.position, player.transform.position, GameHandler.Instance.moveSpeed * Time.deltaTime);
+                        if (player.transform.position.z > transform.position.z)
+                        {
+                            type = EnemyType.SWORDSMAN;
+                        }
+                    }
+                    else
+                    {
+                        anim.Play("Idle");
+                    }
+                }
+                else
+                {
+                    anim.Play("Idle");
+                }
                 if (Vector3.Distance (transform.position, player.transform.position) <= attackDistance)
                 {
                     state = EnemyState.ATTACK;
@@ -95,9 +132,23 @@ public class EnemyScript : MonoBehaviour
         }
     }
 
-    private void Hit()
+    public void Destruction()
     {
-        player.GetComponent<PlayerController>().GetDamage(level);
+        Invoke("Destroy", 0.1f);
+    }
+
+    private void Destroy()
+    {
+        Destroy(levelImage);
+        Destroy(transform.parent.gameObject);
+    }
+
+    protected virtual void Hit()
+    {
+        if (Vector3.Distance(transform.position, player.transform.position) <= attackDistance)
+        {
+            player.GetComponent<PlayerController>().GetDamage(level);
+        }
         state = EnemyState.IDLE;
     }
 
@@ -113,20 +164,30 @@ public class EnemyScript : MonoBehaviour
 
     public void Death()
     {
+        transform.DOMoveZ(transform.position.z + Random.Range (0.7f, 1.25f), 0.15f);
+        //GetComponent<Rigidbody>().AddForce(Vector3.forward * 125);
         Instantiate(blood, transform.position, blood.transform.rotation);
         levelImage.transform.DOScale(0, 0.15f).OnComplete(() => Destroy(levelImage.gameObject));
-        MR.material.DOColor(deathMat.color, 0.15f);
+        MR.material.DOColor(deathMat.color, 0.15f).OnComplete (() =>
+        {
+            var s = Instantiate(splash, transform.position + new Vector3 (0, 0.1f, 0), Quaternion.identity);
+            s.transform.SetParent(transform);
+            s.transform.DOScale(0.24f, 0.35f);
+        });
         state = EnemyState.DEATH;
     }
 
-    private void HandleUI()
+    protected void HandleUI()
     {
-        float offsetPosY = transform.position.y + 1.5f;
+        float offsetPosY = transform.position.y + (1.5f + level * 0.05f);
         Vector3 offsetPos = new Vector3(transform.position.x, offsetPosY, transform.position.z);
         Vector2 canvasPos;
         Vector2 screenPoint = Camera.main.WorldToScreenPoint(offsetPos);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(mainCanvas, screenPoint, null, out canvasPos);
-        levelImage.SetActive(Vector3.Distance(transform.position, player.transform.position) <= 6f);
-        levelImage.transform.localPosition = new Vector2(canvasPos.x, canvasPos.y + 50);
+        if (levelImage != null)
+        {
+            levelImage.SetActive(Vector3.Distance(transform.position, player.transform.position) <= 6f);
+            levelImage.transform.localPosition = new Vector2(canvasPos.x, canvasPos.y + 50);
+        }
     }
 }

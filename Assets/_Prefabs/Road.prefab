@@ -158,5 +158,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawned: 0
-  coin: {fileID: 5791067393868286912, guid: 48bd49a2e46014100a6449e5ebc98554, type: 3}
-  enemy: {fileID: 6106149655608281879, guid: bb90340239a7448f6a41cd49e6fa72af, type: 3}
+  spawnInstances:
+  - spawnChance: 40
+    minLevel: 0
+    type: 0
+    prefab: {fileID: 6674168402880197361, guid: 48bd49a2e46014100a6449e5ebc98554, type: 3}
+    offset: {x: 0, y: 0, z: 0}
+  - spawnChance: 70
+    minLevel: 0
+    type: 1
+    prefab: {fileID: 6106149655608281879, guid: bb90340239a7448f6a41cd49e6fa72af, type: 3}
+    offset: {x: 0, y: -0.63, z: 0}
+  - spawnChance: 90
+    minLevel: 2
+    type: 1
+    prefab: {fileID: 6106149655608281879, guid: 6774fd66903d84a6aa405276b068e44d, type: 3}
+    offset: {x: 0, y: -0.63, z: 0}
+  - spawnChance: 105
+    minLevel: 4
+    type: 1
+    prefab: {fileID: 6106149655608281879, guid: faf01d5d410484335a6afea7214f61ff, type: 3}
+    offset: {x: 0, y: -0.63, z: 0}

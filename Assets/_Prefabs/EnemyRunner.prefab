@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6106149655607793525}
   - component: {fileID: 7005769522420160625}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: EnemyRunner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -411,13 +411,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd9a1f269c2204cd1bec36fe2a63cb76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  type: 1
   state: 0
   cross: {fileID: 6831698698451451661}
   blood: {fileID: 3773802796254940066, guid: 429611a58447e4140aa26cba135bccd1, type: 3}
   splash: {fileID: 5006477061580376732, guid: 16d75b4887b3f41e1876d9351b407b09, type: 3}
   deathMat: {fileID: 2100000, guid: 89da178192942474cb10e6ba8737a6a7, type: 2}
   MR: {fileID: 3387892466808583251}
+  attentionDistance: 8
   attackDistance: 1.5
   levelImage: {fileID: 0}
   levelPrefab: {fileID: 5247799611750043103, guid: 4e816a2c4340a463a8e7d188c9a14fb9, type: 3}

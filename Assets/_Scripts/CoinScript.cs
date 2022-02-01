@@ -23,7 +23,9 @@ public class CoinScript : MonoBehaviour
             {
                 transform.DOMove(player.transform.position, 0.15f).OnComplete(() =>
                 {
-                    player.GetComponent<PlayerController>().AddCoins();
+                    int _amount = UpgradeHandler.Instance.GetCoinPrice();
+                    player.GetComponent<PlayerController>().AddCoins(_amount);
+                    UpgradeHandler.Instance.SetCoinPrice();
                     Destroy(gameObject);
                 });
                 moving = true;

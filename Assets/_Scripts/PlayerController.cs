@@ -12,12 +12,14 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private int health = 100, maxHealth = 100;
     [SerializeField] private Image healthBar;
     [SerializeField] private TMP_Text healthText;
+    [SerializeField] private Canvas mainCanvas;
     [SerializeField] private CanvasGroup damageCanvas;
     [SerializeField] private bool moving;
     [SerializeField] private int coins;
     [SerializeField] private TMP_Text coinsText;
     [SerializeField] private EnemyScript enemy;
     [SerializeField] private GameObject blood;
+    [SerializeField] private TMP_Text coinPopup;
 
     private Animator anim;
     private Vector3 mousePos, newPos, oldPos, curPos; 
@@ -42,7 +44,8 @@ public class PlayerController : Singleton<PlayerController>
     public void SpendCoins (int _amount)
     {
         coins -= _amount;
-        coinsText.text = _amount.ToString();
+        coinsText.text = coins.ToString();
+        UpgradeHandler.Instance.CheckUpgrades();
     }
 
     private EnemyScript EnemyInFront()
@@ -79,7 +82,7 @@ public class PlayerController : Singleton<PlayerController>
                 GameHandler.Instance.moveSpeed += 0.1f;
             }
             milesText.text = string.Format("{0:0.0}/{1:0.0} miles", miles, maxMiles);
-            mileProgress.DOFillAmount(miles / maxMiles, 0.25f);
+            mileProgress.DOFillAmount(miles / maxMiles, 0.5f);
             mileTimer = 120;
         }
         Movement();
@@ -115,12 +118,17 @@ public class PlayerController : Singleton<PlayerController>
         }
     }
 
-    public void GetDamage (int _level)
+    public void GetDamage (int _level, bool _piercing = false)
     {
-        if (_level > UpgradeHandler.Instance.GetLevel())
+        if (_level > UpgradeHandler.Instance.GetLevel() || _piercing)
         {
-            anim.SetBool("Hit", true);
-            int _amount = (_level - UpgradeHandler.Instance.GetLevel()) * 5;
+            if (!anim.GetBool("Hit"))
+                anim.SetBool("Hit", true);
+            int _amount;
+            if (_piercing && _level - UpgradeHandler.Instance.GetLevel() <= 0)
+                _amount = 5;
+            else
+                _amount = (_level - UpgradeHandler.Instance.GetLevel()) * 5;
             health -= _amount;
             healthText.text = health.ToString();
             healthBar.DOFillAmount((float)health / maxHealth, 0.25f);
@@ -189,7 +197,7 @@ public class PlayerController : Singleton<PlayerController>
                     if (targetPosX < -1.5f)
                         targetPosX = -1.5f;
 
-                    transform.DOMoveX(targetPosX, Mathf.Abs(distance) * 0.5f).OnComplete(() =>
+                    transform.DOMoveX(targetPosX, Mathf.Abs(distance) * 0.4f).OnComplete(() =>
                     {
                         transform.DOKill();
                         transform.rotation = Quaternion.identity;
@@ -206,5 +214,17 @@ public class PlayerController : Singleton<PlayerController>
         MMVibrationManager.Haptic(HapticTypes.Success);
         coins += _amount;
         coinsText.text = coins.ToString();
+        UpgradeHandler.Instance.CheckUpgrades();
+        var pop = Instantiate(coinPopup, mainCanvas.transform);
+        var targetPos = Camera.main.WorldToScreenPoint(transform.position);
+        pop.rectTransform.anchoredPosition = new Vector2(targetPos.x - 150, targetPos.y);
+        pop.rectTransform.DOAnchorPosY(pop.rectTransform.anchoredPosition.y + 50, 1);
+        StartCoroutine(Fading(pop, 0.25f));
+    }
+
+    private IEnumerator Fading (TMP_Text _text, float _delay)
+    {
+        yield return new WaitForSeconds(_delay);
+        _text.DOFade(0, 0.75f).OnComplete(() => Destroy(_text.gameObject));
     }
 }

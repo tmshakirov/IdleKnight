@@ -23,7 +23,8 @@ public class Road : MonoBehaviour
     {
         foreach (var e in enemies)
         {
-            Destroy (e.gameObject);
+            if (e != null)
+                e.transform.GetComponentInChildren<EnemyScript>().Destruction();
         }
         spawner.Reset();
     }
@@ -33,6 +34,9 @@ public class Road : MonoBehaviour
         if (!cantspawn)
             spawner.Spawn();
         else
+        {
+            spawner.Spawn(4);
             cantspawn = false;
+        }
     }
 }

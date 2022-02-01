@@ -5,12 +5,18 @@ using DG.Tweening;
 
 public class ParticleScript : MonoBehaviour
 {
+    [SerializeField] private float scale;
+    [SerializeField] private float startScaleTimer;
     [SerializeField] private float destrTimer;
     private Transform target;
 
     // Start is called before the first frame update
     void Start()
     {
+        if (startScaleTimer > 0)
+        {
+            transform.DOScale(scale, startScaleTimer);
+        }
         Invoke("Destroy", destrTimer);
     }
 
@@ -24,7 +30,14 @@ public class ParticleScript : MonoBehaviour
 
     private void Destroy()
     {
-        transform.DOScale(0, 0.25f).OnComplete(() => Destroy(gameObject));
+        if (startScaleTimer > 0)
+        {
+            transform.DOScale(0, startScaleTimer/2).OnComplete(() => Destroy(gameObject));
+        }
+        else
+        {
+            transform.DOScale(0, 0.25f).OnComplete(() => Destroy(gameObject));
+        }
     }
 
     public void SetTarget (Transform _target)

@@ -5,8 +5,7 @@ using UnityEngine;
 public class SpawnScript : MonoBehaviour
 {
     [SerializeField] private bool spawned;
-    [SerializeField] private CoinScript coin;
-    [SerializeField] private GameObject enemy;
+    [SerializeField] private List<SpawnInstance> spawnInstances;
 
     private int spawnChance;
     private bool prevEnemy;
@@ -23,27 +22,73 @@ public class SpawnScript : MonoBehaviour
         }
     }
 
-    public void Spawn()
+    public void Spawn(int _offset = 0)
     {
         if (!spawned)
         {
             spawned = true;
         }
-        for (int i = 0; i < 12; i++)
+        spawnChance = GetAvailableObjects()[GetAvailableObjects().Count-1].spawnChance;
+        for (int i = _offset; i < 9; i++)
         {
-            spawnChance = Random.Range(1, 101);
-            if (spawnChance <= 40 && !prevEnemy)
+            RandomizeSpawn(i);
+        }
+    }
+
+    private List<SpawnInstance> GetAvailableObjects()
+    {
+        List<SpawnInstance> tmpSpawns = new List<SpawnInstance>();
+        foreach (var s in spawnInstances)
+        {
+            if (s.IsAvailable())
+                tmpSpawns.Add(s);
+        }
+        return tmpSpawns;
+    }
+
+    private void RandomizeSpawn(int i)
+    {
+        int tmp = Random.Range(0, spawnChance);
+        foreach (var s in GetAvailableObjects())
+        {
+            if (tmp < s.spawnChance)
             {
-                var e = Instantiate(enemy, transform.position - new Vector3(0, 0, 3.5f) + new Vector3(Random.Range(-1.5f, 1.5f), -0.2f, i * 2), enemy.transform.rotation);
+                InitSpawn(s, transform.position - new Vector3(0, 0, 3.5f) + new Vector3(Random.Range(-1.5f, 1.5f), 0, i * 3f));
+                return;
+            }
+        }
+    }
+
+    private void InitSpawn (SpawnInstance s, Vector3 _pos)
+    {
+        switch (s.type)
+        {
+            case SpawnType.COIN:
+                Instantiate(s.prefab, _pos + s.offset, s.prefab.transform.rotation).transform.SetParent(transform);
+                break;
+            default:
+                var e = Instantiate(s.prefab, _pos + s.offset, s.prefab.transform.rotation);
                 e.GetComponentInChildren<EnemyScript>().Init();
                 transform.parent.GetComponent<Road>().AddEnemy(e.gameObject);
                 prevEnemy = true;
-            }
-            else
-            {
-                Instantiate(coin, transform.position - new Vector3(0, 0, 3.5f) + new Vector3(Random.Range(-1.5f, 1.5f), 0, i * 2), coin.transform.rotation).transform.SetParent(transform);
-                prevEnemy = false;
-            }
+                break;
         }
+    }
+}
+
+public enum SpawnType { COIN, ENEMY }
+
+[System.Serializable]
+public class SpawnInstance
+{
+    public int spawnChance;
+    public int minLevel;
+    public SpawnType type;
+    public GameObject prefab;
+    public Vector3 offset;
+
+    public bool IsAvailable()
+    {
+        return UpgradeHandler.Instance.GetLevel() >= minLevel;
     }
 }

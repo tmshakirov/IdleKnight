@@ -22,7 +22,11 @@ public class UpgradeHandler : Singleton<UpgradeHandler>
     public void Upgrade (int _type)
     {
         if (upgrades[_type].PressUpgrade())
-            Instantiate(upgradeEffect, player.position, upgradeEffect.transform.rotation).GetComponent<ParticleScript>().SetTarget (player);
+        {
+            Instantiate(upgradeEffect, player.position, upgradeEffect.transform.rotation).GetComponent<ParticleScript>().SetTarget(player);
+            if (upgrades[_type].type != UpgradeType.COINS)
+                player.transform.localScale = new Vector3(player.transform.localScale.x + 0.04f, player.transform.localScale.y + 0.04f, player.transform.localScale.z + 0.04f);
+        }
     }
 
     public void CheckUpgrades()
@@ -84,12 +88,15 @@ public class Upgrade
                     u.SetActive(false);
                 upgradeObjects[level].SetActive(true);
             }
-            levelText.text = string.Format("Level {0}", (level+1));
+            levelText.text = string.Format("Level {0}", level+1);
             if (type == UpgradeType.COINS)
                 price = Mathf.FloorToInt(price * 4);
             else
+            {
                 price = Mathf.FloorToInt(price * 2.8f);
+            }
             priceText.text = price.ToString();
+            UpgradeHandler.Instance.CheckUpgrades();
             return true;
         }
         return false;

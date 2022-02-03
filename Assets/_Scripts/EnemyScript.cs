@@ -38,7 +38,6 @@ public class EnemyScript : MonoBehaviour
 
     public void Init ()
     {
-        
         if (type == EnemyType.RUNNER)
         {
             level = Random.Range(0, UpgradeHandler.Instance.GetLevel());

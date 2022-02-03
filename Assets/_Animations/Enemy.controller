@@ -20,7 +20,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: c8ecb1d64f07a4fdbb6a79d815f571da, type: 2}
+  m_Motion: {fileID: 7400000, guid: 2b002d90ab4b10b4f81e56d4887da1e5, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -68,7 +68,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 93cd45b5bac03944aaf25d74bf07241c, type: 2}
+  m_Motion: {fileID: 7400000, guid: f9a57c561e00e0741915f890d42345d2, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -128,7 +128,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 149bc2d4ed91adc4896c302ef1d9f758, type: 2}
+  m_Motion: {fileID: 7400000, guid: 96b186117f7e77b408aba5ece3f985ae, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -142,7 +142,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Attack
-  m_Speed: 1.75
+  m_Speed: 2
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
@@ -154,7 +154,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: cd5dbf387d49c4a8296a762f28b820e9, type: 2}
+  m_Motion: {fileID: 7400000, guid: 179e54d8fe583114ea0714fa78913a2c, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -180,7 +180,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: aae289a110a0246089e2ae511d41fb65, type: 2}
+  m_Motion: {fileID: 7400000, guid: aa62ccba3e721b6489d4aab7d3d16a47, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

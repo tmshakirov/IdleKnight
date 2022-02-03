@@ -8,16 +8,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: CoinMaterial
-  m_Shader: {fileID: 211, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: _ALPHABLEND_ON _EMISSION
+  m_Shader: {fileID: 4800000, guid: 7cd5de0b884b14f88ab763ef465e1799, type: 3}
+  m_ShaderKeywords: _ALPHABLEND_ON _EMISSION _SEGMENTED_ON
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - ALWAYS
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -58,11 +56,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AmbientCol: 0
     - _BlendOp: 0
     - _BumpScale: 1
     - _CameraFadingEnabled: 0
     - _CameraFarFadeDistance: 2
     - _CameraNearFadeDistance: 1
+    - _Clipped: 0
+    - _ColBright: 0
+    - _ColIntense: 1
     - _ColorMode: 0
     - _Cull: 2
     - _Cutoff: 0.5
@@ -78,16 +80,27 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 1
     - _LightingEnabled: 0
+    - _Lumin: 0.07
+    - _MaxLight: 1
     - _Metallic: 0
+    - _MinLight: 0.888
     - _Mode: 2
     - _OcclusionStrength: 1
+    - _Offset: 0.28
     - _Parallax: 0.02
+    - _Segmented: 1
+    - _ShnIntense: 0.203
+    - _ShnOverlap: 0
+    - _ShnRange: 0.109
+    - _ShnSmooth: 0.203
     - _SmoothnessTextureChannel: 0
     - _SoftParticlesEnabled: 0
     - _SoftParticlesFarFadeDistance: 1
     - _SoftParticlesNearFadeDistance: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 5
+    - _Steps: 3
+    - _StpSmooth: 0.381
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
@@ -95,5 +108,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 1}
+    - _ShnColor: {r: 1, g: 1, b: 0, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

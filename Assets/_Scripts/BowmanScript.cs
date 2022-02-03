@@ -12,7 +12,7 @@ public class BowmanScript : EnemyScript
         if (state != EnemyState.DEATH)
         {
             cross.SetActive(level > UpgradeHandler.Instance.GetLevel());
-            if (Vector3.Distance(transform.position, player.transform.position) <= attackDistance)
+            if (Vector3.Distance(transform.position, player.transform.position) <= meleeDistance)
             {
                 rotationDirection = player.transform.position - transform.position;
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(rotationDirection), 6f * Time.deltaTime);

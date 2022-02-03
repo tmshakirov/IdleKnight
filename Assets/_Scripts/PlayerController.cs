@@ -45,7 +45,6 @@ public class PlayerController : Singleton<PlayerController>
     {
         coins -= _amount;
         coinsText.text = coins.ToString();
-        UpgradeHandler.Instance.CheckUpgrades();
     }
 
     private EnemyScript EnemyInFront()

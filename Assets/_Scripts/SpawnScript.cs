@@ -29,7 +29,7 @@ public class SpawnScript : MonoBehaviour
             spawned = true;
         }
         spawnChance = GetAvailableObjects()[GetAvailableObjects().Count-1].spawnChance;
-        for (int i = _offset; i < 9; i++)
+        for (int i = _offset; i < 8; i++)
         {
             RandomizeSpawn(i);
         }
@@ -51,9 +51,17 @@ public class SpawnScript : MonoBehaviour
         int tmp = Random.Range(0, spawnChance);
         foreach (var s in GetAvailableObjects())
         {
+            if (prevEnemy)
+            {
+                if (s.type == SpawnType.COIN)
+                {
+                    InitSpawn(s, transform.position - new Vector3(0, 0, 3.5f) + new Vector3(Random.Range(-1.5f, 1.5f), 0, i * (3f + GameHandler.Instance.moveSpeed - 2.5f)));
+                    return;
+                }
+            }
             if (tmp < s.spawnChance)
             {
-                InitSpawn(s, transform.position - new Vector3(0, 0, 3.5f) + new Vector3(Random.Range(-1.5f, 1.5f), 0, i * 3f));
+                InitSpawn(s, transform.position - new Vector3(0, 0, 3.5f) + new Vector3(Random.Range(-1.5f, 1.5f), 0, i * (3f + GameHandler.Instance.moveSpeed - 2.5f)));
                 return;
             }
         }

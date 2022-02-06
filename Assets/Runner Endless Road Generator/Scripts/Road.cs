@@ -6,6 +6,8 @@ public class Road : MonoBehaviour
 {
     public int number;
     public bool cantspawn;
+    [SerializeField] private MeshFilter MR;
+    [SerializeField] private Mesh lastRoad;
     [SerializeField] private SpawnScript spawner;
     [SerializeField] private List<GameObject> enemies;
 
@@ -26,7 +28,21 @@ public class Road : MonoBehaviour
             if (e != null)
                 e.transform.GetComponentInChildren<EnemyScript>().Destruction();
         }
+        enemies.Clear();
         spawner.Reset();
+    }
+
+    public void LastSet (Vector3 _pos)
+    {
+        transform.position = _pos;
+        Reset();
+    }
+
+    public void LastSpawn()
+    {
+        MR = GetComponent<MeshFilter>();
+        MR.mesh = lastRoad;
+        spawner.LastSpawn();
     }
 
     public void Spawn()

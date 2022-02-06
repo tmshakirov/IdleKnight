@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class RoadGenerator : MonoBehaviour
 {
+    public Road lastSpawned;
+    public int spawnCount = 8;
     [SerializeField] private float startingPointZ;
 
     [Header("Road sections")]
@@ -76,14 +78,34 @@ public class RoadGenerator : MonoBehaviour
                         if (ReadyRoad.Count > 0)
                         {
                             curRoad.transform.localPosition = ReadyRoad[ReadyRoad.Count - 1].transform.position + new Vector3(0f, 0f, distance);
+                            if (spawnCount <= 0)
+                            {
+                                if (lastSpawned == null)
+                                {
+                                    lastSpawned = curRoad.GetComponent<Road>();
+                                    lastSpawned.LastSpawn();
+                                }
+                                else
+                                {
+                                    if (curRoad != lastSpawned.gameObject)
+                                    {
+                                        curRoad.GetComponent<Road>().Spawn();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                curRoad.GetComponent<Road>().Spawn();
+                            }
                         }
                         else if (ReadyRoad.Count == 0)
                         {
                             curRoad.GetComponent<Road>().cantspawn = true;
                             curRoad.transform.localPosition = new Vector3(0f, curRoad.transform.localPosition.y, startingPointZ);
+                            curRoad.GetComponent<Road>().Spawn();
                         }
-                        curRoad.GetComponent<Road>().Spawn();
                         Roads[currentNumberRoad].GetComponent<Road>().number = currentNumberRoad;
+                        spawnCount--;
                         numberRoads[currentNumberRoad] = true;
                         lastNumberRoad = currentNumberRoad;
                         currentCountRoad++;
@@ -97,13 +119,32 @@ public class RoadGenerator : MonoBehaviour
                         if (ReadyRoad.Count > 0)
                         {
                             curRoad.transform.localPosition = ReadyRoad[ReadyRoad.Count - 1].transform.position + new Vector3(0f, 0f, distance);
+                            if (spawnCount <= 0)
+                            {
+                                if (lastSpawned == null)
+                                {
+                                    lastSpawned = curRoad.GetComponent<Road>();
+                                    lastSpawned.LastSpawn();
+                                }
+                                else
+                                {
+                                    if (curRoad != lastSpawned.gameObject)
+                                    {
+                                        curRoad.GetComponent<Road>().Spawn();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                curRoad.GetComponent<Road>().Spawn();
+                            }
                         }
                         else if (ReadyRoad.Count == 0)
                         {
                             curRoad.GetComponent<Road>().cantspawn = true;
                             curRoad.transform.localPosition = new Vector3(curRoad.transform.localPosition.x, curRoad.transform.localPosition.y, startingPointZ);
+                            curRoad.GetComponent<Road>().Spawn();
                         }
-                        curRoad.GetComponent<Road>().Spawn();
                         curRoad.GetComponent<Road>().number = currentNumberRoad;
                         numberRoads[currentNumberRoad] = true;
                         lastNumberRoad = currentNumberRoad;
@@ -114,11 +155,30 @@ public class RoadGenerator : MonoBehaviour
                 //curRoad.GetComponent<Road>().Spawn();
             }
 
-            foreach (GameObject got in ReadyRoad)
+            if (lastSpawned == null)
             {
-                got.transform.Translate (Vector3.back * GameHandler.Instance.moveSpeed * Time.deltaTime);
+                foreach (GameObject got in ReadyRoad)
+                {
+                    got.transform.Translate(Vector3.back * GameHandler.Instance.moveSpeed * Time.deltaTime);
+                }
             }
-
+            else
+            {
+                lastSpawned.transform.Translate(Vector3.back * GameHandler.Instance.moveSpeed * Time.deltaTime);
+                foreach (GameObject got in ReadyRoad)
+                {
+                    if (got != lastSpawned.gameObject)
+                    {
+                        if (got.transform.position.z > lastSpawned.transform.position.z)
+                        {
+                            //got.transform.position = ZonaWaiting;
+                            got.GetComponent<Road>().LastSet(ZonaWaiting);
+                        }
+                        else
+                            got.transform.Translate(Vector3.back * GameHandler.Instance.moveSpeed * Time.deltaTime);
+                    }
+                }
+            }
             if (ReadyRoad[0].transform.position.z < maxPosZ)
             {
                 int i;
@@ -128,6 +188,7 @@ public class RoadGenerator : MonoBehaviour
                 ReadyRoad.RemoveAt(0);
                 numberRoads[i] = false;
                 currentCountRoad--;
+                spawnCount--;
             }
         }
     }

@@ -99,6 +99,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   number: -1
   cantspawn: 0
+  MR: {fileID: 3219722209465383889}
+  lastRoad: {fileID: 8691780276856062721, guid: 3e997b0a8570a4d6fb9554a6744acb33, type: 3}
   spawner: {fileID: 1012557973118635758}
   enemies: []
 --- !u!65 &3219722209465383891
@@ -159,23 +161,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawned: 0
   spawnInstances:
-  - spawnChance: 40
+  - spawnChance: 3
     minLevel: 0
     type: 0
     prefab: {fileID: 6674168402880197361, guid: 48bd49a2e46014100a6449e5ebc98554, type: 3}
     offset: {x: 0, y: 0, z: 0}
-  - spawnChance: 70
+  - spawnChance: 5
     minLevel: 0
     type: 1
     prefab: {fileID: 6106149655608281879, guid: bb90340239a7448f6a41cd49e6fa72af, type: 3}
     offset: {x: 0, y: -0.63, z: 0}
-  - spawnChance: 90
-    minLevel: 2
+  - spawnChance: 7
+    minLevel: 0
     type: 1
     prefab: {fileID: 6106149655608281879, guid: 6774fd66903d84a6aa405276b068e44d, type: 3}
     offset: {x: 0, y: -0.63, z: 0}
-  - spawnChance: 105
-    minLevel: 4
-    type: 1
-    prefab: {fileID: 6106149655608281879, guid: faf01d5d410484335a6afea7214f61ff, type: 3}
-    offset: {x: 0, y: -0.63, z: 0}
+  border: {fileID: 875271526144963950, guid: f0852ab7a77444ae38557cf12b8d6bc5, type: 3}
+  borderStop: {fileID: 778050226204836147, guid: d9c2f648d377d4c41acc885e210dc7b6, type: 3}
+  boss: {fileID: 7916790642318341957, guid: debb3fea0d5024c9b80d183eb5c7381a, type: 3}

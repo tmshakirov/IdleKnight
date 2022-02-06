@@ -1,27 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using DG.Tweening;
+
+public enum GameMode { DEFAULT, BOSSFIGHT }
 
 public class GameHandler : Singleton<GameHandler>
 {
+    public GameMode gameMode;
     public float moveSpeed = 1.5f;
+    public float animatorSpeed = 1f;
     public GameObject road;
     public Transform spawner;
+    public CanvasGroup victoryCanvas;
 
-    // Start is called before the first frame update
-    void Start()
+    public void StartBossfight()
     {
-        
+        moveSpeed = 0;
+        gameMode = GameMode.BOSSFIGHT;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Victory()
     {
-
-    }
-
-    public void Spawn()
-    {
-        Instantiate(road, spawner.transform.position, road.transform.rotation);
+        victoryCanvas.gameObject.SetActive(true);
+        victoryCanvas.DOFade(1, 0.5f).SetUpdate (true);
     }
 }

@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class SpawnScript : MonoBehaviour
 {
     [SerializeField] private bool spawned;
     [SerializeField] private List<SpawnInstance> spawnInstances;
+    [SerializeField] private GameObject border, borderStop, boss;
 
     private int spawnChance;
     private bool prevEnemy;
@@ -14,11 +16,12 @@ public class SpawnScript : MonoBehaviour
     {
         if (spawned)
         {
-            foreach (Transform child in transform)
-            {
-                Destroy(child.gameObject);
-            }
             spawned = false;
+        }
+        foreach (Transform child in transform)
+        {
+            if (child.gameObject != null)
+                Destroy(child.gameObject);
         }
     }
 
@@ -26,13 +29,25 @@ public class SpawnScript : MonoBehaviour
     {
         if (!spawned)
         {
+            spawnChance = GetAvailableObjects()[GetAvailableObjects().Count - 1].spawnChance;
+            for (int i = _offset; i < 8; i++)
+            {
+                RandomizeSpawn(i);
+            }
             spawned = true;
         }
-        spawnChance = GetAvailableObjects()[GetAvailableObjects().Count-1].spawnChance;
-        for (int i = _offset; i < 8; i++)
+    }
+
+    public void LastSpawn()
+    {
+        spawnChance = GetAvailableObjects()[GetAvailableObjects().Count - 1].spawnChance;
+        for (int i = 0; i < 4; i++)
         {
             RandomizeSpawn(i);
         }
+        Instantiate(border, transform.position + new Vector3 (0, 0, 9), Quaternion.identity).transform.SetParent (transform);
+        Instantiate(borderStop, transform.position + new Vector3 (0, 0, 18.25f), Quaternion.identity).transform.SetParent(transform);
+        Instantiate(boss, new Vector3 (transform.position.x, PlayerController.Instance.transform.position.y, transform.position.z) + new Vector3(0, 0, 18.75f), boss.transform.rotation).transform.SetParent(transform);
     }
 
     private List<SpawnInstance> GetAvailableObjects()
@@ -56,6 +71,7 @@ public class SpawnScript : MonoBehaviour
                 if (s.type == SpawnType.COIN)
                 {
                     InitSpawn(s, transform.position - new Vector3(0, 0, 3.5f) + new Vector3(Random.Range(-1.5f, 1.5f), 0, i * (3f + GameHandler.Instance.moveSpeed - 2.5f)));
+                    prevEnemy = false;
                     return;
                 }
             }

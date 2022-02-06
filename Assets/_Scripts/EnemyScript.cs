@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 
-public enum EnemyType { SWORDSMAN, RUNNER, BOWMAN }
+public enum EnemyType { SWORDSMAN, RUNNER, BOWMAN, BOSS }
 public enum EnemyState { IDLE, ATTACK, DEATH }
 
 public class EnemyScript : MonoBehaviour
@@ -13,7 +13,8 @@ public class EnemyScript : MonoBehaviour
     [SerializeField] protected EnemyType type;
     [SerializeField] protected EnemyState state;
     [SerializeField] protected GameObject cross;
-    [SerializeField] protected GameObject blood, splash;
+    [SerializeField] protected GameObject blood, splash, headExplosion;
+    protected int deathType;
     [SerializeField] protected Material deathMat;
     [SerializeField] protected SkinnedMeshRenderer MR;
     protected Animator anim;
@@ -25,15 +26,22 @@ public class EnemyScript : MonoBehaviour
     [SerializeField] protected TMP_Text levelText;
     [SerializeField] protected List<GameObject> weapons, armor;
     [SerializeField] protected RectTransform mainCanvas;
-
-
-
     protected Vector3 rotationDirection;
 
     void Start()
     {
         anim = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
+    }
+
+    public virtual EnemyType GetEnemyType()
+    {
+        return type;
+    }
+
+    public virtual int GetHealth ()
+    {
+        return 1;
     }
 
     public void Init ()
@@ -59,7 +67,7 @@ public class EnemyScript : MonoBehaviour
                 }
             }
         }
-        transform.localScale += new Vector3(level * 0.05f, level * 0.05f, level * 0.05f);
+        transform.localScale += new Vector3(level * 0.03f, level * 0.03f, level * 0.03f);
         try
         {
             if (weapons.Count > level)
@@ -79,6 +87,44 @@ public class EnemyScript : MonoBehaviour
         levelImage = Instantiate(levelPrefab, mainCanvas.transform);
         levelText = levelImage.GetComponentInChildren<TMP_Text>();
         levelText.text = string.Format("Level {0}", (level+1));
+    }
+
+    protected virtual void AttackEnd()
+    {
+        if (GameHandler.Instance.gameMode == GameMode.BOSSFIGHT)
+            anim.SetBool("Attacking", false);
+    }
+
+    public virtual void AddLevel()
+    {
+        if (level < UpgradeHandler.Instance.GetLevel())
+        {
+            level++;
+            foreach (var w in weapons)
+                w.SetActive(false);
+            foreach (var a in armor)
+            {
+                if (a != null)
+                    a.SetActive(false);
+            }
+            try
+            {
+                if (weapons.Count > level)
+                    weapons[level].gameObject.SetActive(true);
+                else
+                    weapons[weapons.Count - 1].gameObject.SetActive(true);
+                if (armor.Count > level)
+                    armor[level].gameObject.SetActive(true);
+                else
+                    armor[armor.Count - 1].gameObject.SetActive(true);
+            }
+            catch
+            {
+
+            }
+            levelText.text = string.Format("Level {0}", level + 1);
+            transform.localScale += new Vector3(0.03f, 0.03f, 0.03f);
+        }
     }
 
     // Update is called once per frame
@@ -126,8 +172,25 @@ public class EnemyScript : MonoBehaviour
                 anim.Play("Attack");
             break;
             case EnemyState.DEATH:
-                anim.Play("Death");
-            break;
+                if (transform.position.z >= player.transform.position.z)
+                {
+                    switch (UpgradeHandler.Instance.GetWeapon())
+                    {
+                        case WeaponType.CUTTING:
+                            if (deathType <= 50)
+                                anim.Play("DeathHalf");
+                            else
+                                anim.Play("DeathHead");
+                            break;
+                        case WeaponType.BLUNT:
+                            anim.Play("DeathExplosion");
+                            break;
+                        default:
+                            anim.Play("Death");
+                            break;
+                    }
+                }
+                break;
         }
     }
 
@@ -161,9 +224,12 @@ public class EnemyScript : MonoBehaviour
         return state == EnemyState.DEATH;
     }
 
-    public void Death()
+    public virtual void Death()
     {
-        transform.DOMoveZ(transform.position.z + Random.Range (0.7f, 1.25f), 0.15f);
+        if (UpgradeHandler.Instance.GetWeapon() != WeaponType.BLUNT)
+            transform.DOMoveZ(transform.position.z + Random.Range(0.7f, 1.25f), 0.15f);
+        else
+            Instantiate(headExplosion, transform.position + Vector3.up * 0.5f, headExplosion.transform.rotation);
         //GetComponent<Rigidbody>().AddForce(Vector3.forward * 125);
         Instantiate(blood, transform.position, blood.transform.rotation);
         levelImage.transform.DOScale(0, 0.15f).OnComplete(() => Destroy(levelImage.gameObject));
@@ -174,6 +240,7 @@ public class EnemyScript : MonoBehaviour
             s.transform.DOScale(0.24f, 0.35f);
         });
         state = EnemyState.DEATH;
+        deathType = Random.Range(1, 101);
     }
 
     protected void HandleUI()

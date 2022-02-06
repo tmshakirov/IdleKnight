@@ -42,7 +42,18 @@ public class BowmanScript : EnemyScript
                 }
                 break;
             case EnemyState.DEATH:
-                anim.Play("Death");
+                switch (UpgradeHandler.Instance.GetWeapon())
+                {
+                    case WeaponType.CUTTING:
+                        if (deathType <= 50)
+                            anim.Play("DeathHalf");
+                        else
+                            anim.Play("DeathHead");
+                        break;
+                    default:
+                        anim.Play("Death");
+                        break;
+                }
                 break;
         }
     }

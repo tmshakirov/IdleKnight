@@ -13,7 +13,7 @@ public class GameHandler : Singleton<GameHandler>
     public float animatorSpeed = 1f;
     public GameObject road;
     public Transform spawner;
-    public CanvasGroup victoryCanvas;
+    public CanvasGroup victoryCanvas, defeatCanvas;
 
     public void StartBossfight()
     {
@@ -25,5 +25,22 @@ public class GameHandler : Singleton<GameHandler>
     {
         victoryCanvas.gameObject.SetActive(true);
         victoryCanvas.DOFade(1, 0.5f).SetUpdate (true);
+    }
+
+    public void Defeat()
+    {
+        moveSpeed = 0;
+        Invoke("Defeat", 1f);
+    }
+
+    private void DefeatUI()
+    {
+        defeatCanvas.gameObject.SetActive(true);
+        defeatCanvas.DOFade(1, 0.5f).SetUpdate(true);
+    }
+
+    public void Claim()
+    {
+        Application.LoadLevel(0);
     }
 }

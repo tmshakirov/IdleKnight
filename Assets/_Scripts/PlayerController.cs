@@ -9,8 +9,9 @@ using MoreMountains.NiceVibrations;
 
 public class PlayerController : Singleton<PlayerController>
 {
+    private bool death;
     [SerializeField] private int health = 100, maxHealth = 100;
-    [SerializeField] private Image healthBar;
+    [SerializeField] private Image healthBar, bossHealthBar;
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private CanvasGroup mainCanvas;
     [SerializeField] private CanvasGroup damageCanvas;
@@ -19,7 +20,9 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private int coins;
     [SerializeField] private TMP_Text coinsText, bossCoinsText;
     [SerializeField] private EnemyScript enemy;
-    [SerializeField] private GameObject blood;
+    [SerializeField] private GameObject blood, splash;
+    [SerializeField] private Material deathMat;
+    [SerializeField] private SkinnedMeshRenderer MR;
     [SerializeField] private TMP_Text coinPopup;
 
     [SerializeField] private float attackTimer;
@@ -29,9 +32,9 @@ public class PlayerController : Singleton<PlayerController>
     private float startPosX, targetPosX;
 
     [SerializeField] private Image mileProgress;
-    [SerializeField] private TMP_Text milesText;
+    //[SerializeField] private TMP_Text milesText;
+    [SerializeField] private Transform target;
     [SerializeField] private float miles, maxMiles = 1.0f;
-    [SerializeField] private float mileTimer;
 
     [SerializeField] private bool hit;
     [SerializeField] private Image bossProgress;
@@ -39,12 +42,19 @@ public class PlayerController : Singleton<PlayerController>
 
     private void Start()
     {
+        Time.timeScale = 1;
         anim = GetComponent<Animator>();
     }
 
     public bool EnoughCoins (int _amount)
     {
         return coins >= _amount;
+    }
+
+    public void SetMaxDistance (Transform _target)
+    {
+        target = _target;
+        maxMiles = target.position.z - transform.position.z;
     }
 
     public void SpendCoins (int _amount)
@@ -82,37 +92,32 @@ public class PlayerController : Singleton<PlayerController>
 
     void Update()
     {
-        mileTimer -= Time.deltaTime * 50 * GameHandler.Instance.moveSpeed;
-        if (mileTimer <= 0)
+        if (!death)
         {
-            miles += 0.1f;
-            if (miles > maxMiles)
+            if (target != null)
             {
-                miles = 0;
-                maxMiles += 0.1f;
-                GameHandler.Instance.moveSpeed += 0.1f;
+                miles = target.position.z - transform.position.z;
+                //milesText.text = string.Format("{0:0.0}/{1:0.0} miles", miles, maxMiles);
+                mileProgress.DOFillAmount(1 - miles / maxMiles, 0.5f);
             }
-            milesText.text = string.Format("{0:0.0}/{1:0.0} miles", miles, maxMiles);
-            mileProgress.DOFillAmount(miles / maxMiles, 0.5f);
-            mileTimer = 180;
-        }
-        if (mainCanvas.alpha >= 1)
-            Movement();
-        if (GameHandler.Instance.gameMode == GameMode.BOSSFIGHT)
-        {
-            if (bossAmount > 0)
-                bossAmount -= Time.deltaTime * 20;
-            if (Input.GetMouseButtonDown (0))
+            if (mainCanvas.alpha >= 1)
+                Movement();
+            if (GameHandler.Instance.gameMode == GameMode.BOSSFIGHT)
             {
-                bossAmount += 10f;
-                if (bossAmount >= 100f)
+                if (bossAmount > 0)
+                    bossAmount -= Time.deltaTime * 20;
+                if (Input.GetMouseButtonDown(0))
                 {
-                    hit = true;
-                    bossAmount -= 30;
+                    bossAmount += 10f;
+                    if (bossAmount >= 100f)
+                    {
+                        hit = true;
+                        bossAmount -= 30;
+                    }
                 }
+                bossProgress.DOKill();
+                bossProgress.DOFillAmount(bossAmount / 100, 0.1f);
             }
-            bossProgress.DOKill();
-            bossProgress.DOFillAmount(bossAmount/100, 0.1f);
         }
     }
 
@@ -132,6 +137,7 @@ public class PlayerController : Singleton<PlayerController>
             bossCanvas.gameObject.SetActive(true);
             bossCanvas.DOFade(1, 0.5f);
             bossCoinsText.text = coins.ToString();
+            bossHealthBar.DOFillAmount((float)health / maxHealth, 0.25f);
             GameHandler.Instance.StartBossfight();
             Camera.main.DOFieldOfView(50, 0.5f);
             var enemies = FindObjectsOfType<EnemyScript>();
@@ -201,7 +207,10 @@ public class PlayerController : Singleton<PlayerController>
                 }
             }
             if (GameHandler.Instance.gameMode != GameMode.BOSSFIGHT)
+            {
+                GameHandler.Instance.moveSpeed += 0.1f;
                 enemy = null;
+            }
             else
             {
                 hit = false;
@@ -213,6 +222,14 @@ public class PlayerController : Singleton<PlayerController>
                 }
             }
         }
+    }
+
+    public void GetDirectDamage (int _amount)
+    {
+        if (!anim.GetBool("Hit"))
+            anim.SetBool("Hit", true);
+        health -= _amount;
+        DamageEffect();
     }
 
     public void GetDamage (int _level, bool _piercing = false)
@@ -227,17 +244,50 @@ public class PlayerController : Singleton<PlayerController>
             else
                 _amount = (_level - UpgradeHandler.Instance.GetLevel()) * 5;
             health -= _amount;
-            healthText.text = health.ToString();
-            healthBar.DOFillAmount((float)health / maxHealth, 0.25f);
-            Instantiate(blood, transform.position, blood.transform.rotation);
-            Camera.main.transform.DOShakePosition(0.25f, 0.2f);
-            MMVibrationManager.Haptic(HapticTypes.Failure);
-            damageCanvas.gameObject.SetActive(true);
-            damageCanvas.DOFade (1, 0.05f).OnComplete (() =>
-            {
-                damageCanvas.DOFade(0, 0.15f).OnComplete(() => damageCanvas.gameObject.SetActive(false));
-            });
+            DamageEffect();
         }
+    }
+
+    private void DamageEffect()
+    {
+        healthText.text = health.ToString();
+        healthBar.DOFillAmount((float)health / maxHealth, 0.25f);
+        bossHealthBar.DOFillAmount((float)health / maxHealth, 0.25f);
+        Instantiate(blood, transform.position, blood.transform.rotation);
+        Camera.main.transform.DOShakePosition(0.25f, 0.2f);
+        MMVibrationManager.Haptic(HapticTypes.Failure);
+        damageCanvas.gameObject.SetActive(true);
+        damageCanvas.DOFade(1, 0.05f).OnComplete(() =>
+        {
+            damageCanvas.DOFade(0, 0.15f).OnComplete(() =>
+            {
+                damageCanvas.gameObject.SetActive(false);
+                if (health <= 0)
+                {
+                    Death();
+                    GameHandler.Instance.Defeat();
+                }
+            });
+        });
+    }
+
+    private void Death()
+    {
+        Camera.main.transform.DOMoveZ(Camera.main.transform.position.z - 1, 0.15f);
+        transform.DOMoveZ(transform.position.z - 1, 0.15f);
+        Time.timeScale = 0.25f;
+        anim.SetBool("Hit", false);
+        anim.SetBool("Attacking", false);
+        death = true;
+        anim.Rebind();
+        anim.Update(0f);
+        anim.Play("Death");
+        MR.material.DOColor(deathMat.color, 0.15f).OnComplete(() =>
+        {
+            var s = Instantiate(splash, transform.position + new Vector3(0, 0.1f, 0), Quaternion.identity);
+            s.transform.SetParent(transform);
+            s.transform.DOScale(0.24f, 0.35f);
+        });
     }
 
     private void HitEnd()
@@ -291,11 +341,11 @@ public class PlayerController : Singleton<PlayerController>
                     transform.DOKill();
                     if (distance > 0)
                     {
-                        transform.DORotate(new Vector3(0, 15, 0), 0.1f);
+                        transform.DORotate(new Vector3(0, 15, 0), 0.05f);
                     }
                     else
                     {
-                        transform.DORotate(new Vector3(0, -15, 0), 0.1f);
+                        transform.DORotate(new Vector3(0, -15, 0), 0.05f);
                     }
 
                     if (targetPosX > 1.25f)
@@ -319,7 +369,6 @@ public class PlayerController : Singleton<PlayerController>
     {
         MMVibrationManager.Haptic(HapticTypes.Success);
         StartCoroutine(ToAdd(_amount));
-        UpgradeHandler.Instance.CheckUpgrades();
         var pop = Instantiate(coinPopup, mainCanvas.transform);
         pop.text = "+" + _amount;
         var targetPos = Camera.main.WorldToScreenPoint(transform.position);
@@ -341,6 +390,8 @@ public class PlayerController : Singleton<PlayerController>
         yield return new WaitForSecondsRealtime(0.02f);
         if (_amount > 0)
             StartCoroutine(ToAdd(_amount-1));
+        else
+            UpgradeHandler.Instance.CheckUpgrades();
     }
 
     private IEnumerator Fading (TMP_Text _text, float _delay)

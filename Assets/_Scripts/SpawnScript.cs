@@ -47,7 +47,9 @@ public class SpawnScript : MonoBehaviour
         }
         Instantiate(border, transform.position + new Vector3 (0, 0, 9), Quaternion.identity).transform.SetParent (transform);
         Instantiate(borderStop, transform.position + new Vector3 (0, 0, 18.25f), Quaternion.identity).transform.SetParent(transform);
-        Instantiate(boss, new Vector3 (transform.position.x, PlayerController.Instance.transform.position.y, transform.position.z) + new Vector3(0, 0, 18.75f), boss.transform.rotation).transform.SetParent(transform);
+        var b = Instantiate(boss, new Vector3 (transform.position.x, PlayerController.Instance.transform.position.y, transform.position.z) + new Vector3(0, 0, 18.75f), boss.transform.rotation);
+        b.transform.SetParent(transform);
+        PlayerController.Instance.SetMaxDistance(b.transform);
     }
 
     private List<SpawnInstance> GetAvailableObjects()

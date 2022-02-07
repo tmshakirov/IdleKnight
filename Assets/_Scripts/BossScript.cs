@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 
 public class BossScript : EnemyScript
 {
-    [SerializeField] private int health = 5;
+    [SerializeField] private int health = 5, maxHealth;
     private float attackTimer;
+    [SerializeField] private Image healthBar;
     [SerializeField] private GameObject confetti;
 
     void Start()
     {
+        maxHealth = health;
         anim = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
     }
@@ -73,7 +76,7 @@ public class BossScript : EnemyScript
 
     protected override void Hit()
     {
-        player.GetComponent<PlayerController>().GetDamage(10);
+        player.GetComponent<PlayerController>().GetDirectDamage(20);
     }
 
     protected override void AttackEnd()
@@ -94,13 +97,16 @@ public class BossScript : EnemyScript
     public override void Death()
     {
         health--;
+        if (healthBar == null)
+            healthBar = GameObject.Find("HealthBoss").GetComponent<Image>();
+        healthBar.DOFillAmount((float)health / maxHealth, 0.25f);
         Instantiate(blood, transform.position, blood.transform.rotation);
         if (health <= 0)
         {
             Time.timeScale = 0.25f;
             if (UpgradeHandler.Instance.GetWeapon() == WeaponType.BLUNT)
                 Instantiate(headExplosion, transform.position + Vector3.up * 0.5f, headExplosion.transform.rotation);
-            Invoke("Confetti", 0.5f);
+            Invoke("Confetti", 1f);
             MR.material.DOColor(deathMat.color, 0.15f).OnComplete(() =>
             {
                 var s = Instantiate(splash, transform.position + new Vector3(0, 0.1f, 0), Quaternion.identity);
@@ -109,12 +115,12 @@ public class BossScript : EnemyScript
             });
             state = EnemyState.DEATH;
             deathType = Random.Range(1, 101);
-            GameHandler.Instance.Victory();
         }
     }
 
     private void Confetti()
     {
         Instantiate(confetti, transform.position, confetti.transform.rotation);
+        GameHandler.Instance.Victory();
     }
 }
